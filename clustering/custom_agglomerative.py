@@ -1,3 +1,4 @@
+from cv2 import CAP_PVAPI_PIXELFORMAT_BAYER16
 import numpy as np
 
 
@@ -13,8 +14,21 @@ class AgglomerativeAlgorithm:
             - number_of_clusters: boolean or integer
                 set the number of clusters ()
         """
-
-        self.method = method
+        # method initializing
+        if method == "single":
+            self.method = self.single_linkage
+        elif metric == "complete":
+            self.method = self.complete_linkage
+        elif metric == "average":
+            self.method = self.average_linkage
+        elif metric == "centroid":
+            self.method = self.centroid_linkage
+        elif metric == "ward":
+            self.method = self.ward_linkage
+        else:
+            raise ValueError(f"There is no method called '{method}' ")
+        
+        # metric initializing
         if metric == "euclidean":
             self.metric = self.euclidean_distance
         elif metric == "chebyshev":
@@ -24,19 +38,43 @@ class AgglomerativeAlgorithm:
         else:
             raise ValueError(f"There is no metric called '{metric}' ")
 
+        # structure for clusters
         self.clusters = dict()
 
 
-    # distances
+    ######################################### distances
+    @staticmethod
     def euclidean_distance(vec1, vec2):
         return np.sqrt(np.sum((vec1-vec2)**2))
-    
+    @staticmethod
     def manhattan_distance(vec1, vec2):
         return np.sum(np.abs(vec1-vec2))
-    
+    @staticmethod
     def chebyshev_distance(vec1, vec2):
         return np.max(np.abs(vec1-vec2))
 
+    
+    def single_linkage(self, c1, c2, new_c, c):
+        dist = min(self.clusters[c1]["distances"][c], self.clusters[c2]["distances"][c])
+        self.clusters[new_c]["distances"][c] = dist
+        self.clusters[c]["distances"][new_c] = dist
+    
+    def complete_linkage(self, c1, c2, new_c, c):
+        dist = min(self.clusters[c1]["distances"][c], self.clusters[c2]["distances"][c])
+        self.clusters[new_c]["distances"][c] = dist
+        self.clusters[c]["distances"][new_c] = dist
+    
+    
+    def average_linkage():
+        pass
+
+    
+    def centroid_linkage():
+        pass
+
+    
+    def ward_linkage():
+        pass
 
     ################################# methods for algorithm
     def initial(self, data):
@@ -100,6 +138,9 @@ class AgglomerativeAlgorithm:
 
 
     def merge_two_clusters(self, c1, c2, new_c):
+        """
+        function to create a new cluster (new_c) based on two existing clusters (c1, c2)
+        """
         # firstly, create the new cluster
         self.clusters[new_c] = {
             "cluster_length": self.clusters[c1]["length"] + self.clusters[c2]["length"], 
@@ -121,6 +162,9 @@ class AgglomerativeAlgorithm:
 
 
     def fit(self, X):
+        """
+        function corresponding to the main algorithm
+        """
         n = len(X)
         self.initial(X)
         # linkage matrix is need for visualizing
