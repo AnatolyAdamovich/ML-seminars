@@ -3,7 +3,7 @@ import numpy as np
 
 
 class AgglomerativeAlgorithm:
-    def __init__(self, method="single", metric="euclidean", number_of_clusters=False):
+    def __init__(self, method="single", metric="euclidean"):
         """
         Parameters:
             - method: ["single", "average", "complete", "centroid", "ward"] 
@@ -40,7 +40,7 @@ class AgglomerativeAlgorithm:
 
         # structure for clusters
         self.clusters = dict()
-        self.n_of_clusters = number_of_clusters
+        
 
 
     ######### distances between instances
@@ -151,17 +151,17 @@ class AgglomerativeAlgorithm:
             self.clusters[c]["distances"].pop(c2, None)
 
 
-    def fit(self, X):
+    def fit(self, data):
         """
         function corresponding to the main algorithm
         """
-        n = len(X)
+        n = len(data)
         # create initial clusters
-        self.initial(X)
+        self.initial(data)
         
         # linkage matrix is need for visualizing
         linkage_matrix = np.zeros([n-1, 4])
-
+        
         # iterations
         for t in range(0, n-1):
             pair, dist = self.find_min_distance()
@@ -176,3 +176,23 @@ class AgglomerativeAlgorithm:
             linkage_matrix[t][3] = self.clusters[n+t]['cluster_length']
         
         return linkage_matrix
+
+
+    def transform(self, data, n_clusters):
+        n = len(data)
+        labels = [0] * n
+        # create initial clusters
+        self.initial(data)
+        # iterations
+        for t in range(0, n-1):
+            pair, dist = self.find_min_distance()
+            c1, c2 = pair
+
+            self.merge_two_clusters(c1, c2, n+t)
+            if len(self.clusters) == n_clusters:
+                break
+        for i, c in enumerate(self.clusters):
+            cluster_index = i
+            for index_of_object in self.clusters[c]['cluster']:
+                labels[index_of_object] = cluster_index
+        return np.array(labels)
