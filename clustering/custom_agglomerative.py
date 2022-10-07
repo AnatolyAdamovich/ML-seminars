@@ -17,13 +17,13 @@ class AgglomerativeAlgorithm:
         # method initializing
         if method == "single":
             self.method = self.single_linkage
-        elif metric == "complete":
+        elif method == "complete":
             self.method = self.complete_linkage
-        elif metric == "average":
+        elif method == "average":
             self.method = self.average_linkage
-        elif metric == "centroid":
+        elif method == "centroid":
             self.method = self.centroid_linkage
-        elif metric == "ward":
+        elif method == "ward":
             self.method = self.ward_linkage
         else:
             raise ValueError(f"There is no method called '{method}' ")
@@ -60,26 +60,40 @@ class AgglomerativeAlgorithm:
     # 'new_c' is union of 'c1' and 'c2': new_c = c1 | c2
     # 'c' is the cluster to which we calculate the distance
     
-    def single_linkage(self, c1, c2, new_c, c):
+    def single_linkage(self, c1, c2, new_c, c, data=None):
         """ R(new_c, c) = min(R(c1, c), R(c2, c)) """
         dist = min(self.clusters[c1]["distances"][c], self.clusters[c2]["distances"][c])
         self.clusters[new_c]["distances"][c] = dist
         self.clusters[c]["distances"][new_c] = dist
     
-    def complete_linkage(self, c1, c2, new_c, c):
+    def complete_linkage(self, c1, c2, new_c, c, data=None):
         """ R(new_c, c) = max(R(c1, c), R(c2, c)) """
         dist = max(self.clusters[c1]["distances"][c], self.clusters[c2]["distances"][c])
         self.clusters[new_c]["distances"][c] = dist
         self.clusters[c]["distances"][new_c] = dist
     
     
-    def average_linkage():
-        pass
-        
+    def average_linkage(self, c1, c2, new_c, c, data=None):
+        """ R(new_c, c) = avg(R(c1, c), R(c2, c)) """
+        dist = np.mean(self.clusters[c1]["distances"][c], self.clusters[c2]["distances"][c])
+        self.clusters[new_c]["distances"][c] = dist
+        self.clusters[c]["distances"][new_c] = dist
+     
+    def centroid_linkage(self, c1, c2, new_c, c, data=None):
+        # w = self.clusters[new_c]['cluster_length']
+        # alpha1 = self.clusters[c1]['cluster_length'] / w
+        # alpha2 = self.clusters[c2]['cluster_length'] / w
+        # beta = -1 * alpha1 * alpha2
+        # R_c1_c2 = self.clusters[c1]['distances'][c2]
+        # R_c1_c = self.clusters[c1]['distances'][c]
+        # R_c2_c = self.clusters[c2]['distances'][c]
+        # dist = alpha1 * R_c1_c + alpha2 * R_c2_c  + beta * R_c1_c2
 
-    
-    def centroid_linkage():
-        pass
+        centre_of_new_c = np.mean([data[i] for i in self.clusters[new_c]['cluster']])
+        centre_of_c = np.mean([data[i] for i in self.clusters[c]['cluster']])
+        dist = self.metric(centre_of_new_c, centre_of_c)
+        self.clusters[new_c]["distances"][c] = dist
+        self.clusters[c]["distances"][new_c] = dist
 
     
     def ward_linkage():
