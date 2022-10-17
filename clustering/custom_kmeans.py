@@ -108,15 +108,15 @@ class KMeansAlgorithm:
             ax.scatter(*centroid, marker='x', color='m', linewidths=2)
         plt.show()
 
-def plot_within_cluster_variation(data, model, range_of_clusters=None):
+def plot_within_cluster_variation(data, model, repeat=3, range_of_clusters=None):
     if range_of_clusters is None:
-        range_of_clusters = np.arange(len(data))
+        range_of_clusters = np.arange(1, len(data))
     wcv_array = []
     for k in range_of_clusters:
-        wcv, _ = model().fit(data, number_of_clusters=k, repeat=3)
+        wcv, _, _ = model.fit(data, number_of_clusters=k, repeat=repeat)
         wcv_array.append(wcv)
-    plt.figure(figsize=(12, 8))
-    plt.plot(wcv_array, marker='o-', c='b')
+    plt.figure(figsize=(12, 7))
+    plt.plot(range_of_clusters, np.array(wcv_array), marker='o', linestyle='-', c='b')
     plt.ylabel('Within cluster variation')
     plt.xlabel('number of clusters')
     plt.show()
