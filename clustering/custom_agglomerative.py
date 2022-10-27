@@ -1,18 +1,20 @@
-from cv2 import CAP_PVAPI_PIXELFORMAT_BAYER16
 import numpy as np
 
 
 class AgglomerativeAlgorithm:
     def __init__(self, method="single", metric="euclidean"):
-        """
-        Parameters:
-            - method: ["single", "average", "complete", "centroid", "ward"] 
-                The method that would be used to calculate the distances between two clusters
-            - metric: ["euclidean", "chebyshev", "manhattan"] 
-                The metric that would be used to calculate the distances between each pair of elements of
-                for initial distances matrix
-            - number_of_clusters: boolean or integer
-                set the number of clusters ()
+        """Implementation of Hierarchical agglomerative clustering algorithm
+
+        Parameters
+        -----------
+        method : str, default="single"
+                 The method that would be used to calculate the distances between two clusters.
+                 Available methods: "single", "average", "complete", "centroid", "ward"
+        metric : str, default="euclidean"
+                 The metric that would be used to calculate the distances
+                 between each pair of elements for initial matrix
+                 Available metrics: "euclidean", "chebyshev", "manhattan"
+
         """
         # method initializing
         if method == "single":
@@ -41,9 +43,7 @@ class AgglomerativeAlgorithm:
         # structure for clusters
         self.clusters = dict()
         
-
-
-    ######### distances between instances
+    # distances between instances
     @staticmethod
     def euclidean_distance(vec1, vec2):
         return np.sqrt(np.sum((vec1-vec2)**2))
@@ -56,7 +56,7 @@ class AgglomerativeAlgorithm:
     def chebyshev_distance(vec1, vec2):
         return np.max(np.abs(vec1-vec2))
 
-    ######### distances between clusters
+    # distances between clusters
     # 'new_c' is union of 'c1' and 'c2': new_c = c1 | c2
     # 'c' is the cluster to which we calculate the distance
     
@@ -71,7 +71,6 @@ class AgglomerativeAlgorithm:
         dist = max(self.clusters[c1]["distances"][c], self.clusters[c2]["distances"][c])
         self.clusters[new_c]["distances"][c] = dist
         self.clusters[c]["distances"][new_c] = dist
-    
     
     def average_linkage(self, c1, c2, new_c, c, data=None):
         """ R(new_c, c) = avg(R(c1, c), R(c2, c)) """
@@ -94,12 +93,11 @@ class AgglomerativeAlgorithm:
         dist = self.metric(centre_of_new_c, centre_of_c)
         self.clusters[new_c]["distances"][c] = dist
         self.clusters[c]["distances"][new_c] = dist
-
     
     def ward_linkage():
         pass
 
-    ################################# methods for algorithm
+    # methods for algorithm
     def initial(self, data):
         """
         create initial distance matrix using data, defined metric (distance function for objects); 
@@ -116,7 +114,6 @@ class AgglomerativeAlgorithm:
             for j in range(0, i):
                 self.clusters[i]['distances'][j] = self.clusters[j]['distances'][i]
 
-
     def find_min_distance(self):
         """
         function to find the minimum element in the distances matrix;
@@ -131,7 +128,6 @@ class AgglomerativeAlgorithm:
                 pair_of_clusters = (i, index_for_min_in_current_cluster)
         return pair_of_clusters, min_dist
     
-    
     def linkage(self, c1, c2, new_c):
         """
         function to calculate the distances between new cluster and others
@@ -139,7 +135,6 @@ class AgglomerativeAlgorithm:
         for c in self.clusters:
             if c not in [new_c, c1, c2]:
                 self.method(c1, c2, new_c, c)
-
 
     def merge_two_clusters(self, c1, c2, new_c):
         """
@@ -152,7 +147,6 @@ class AgglomerativeAlgorithm:
             "distances": dict()
         }
 
-        
         # secondly, count the distance to new cluster from other
         self.linkage(c1, c2, new_c)
         
@@ -163,7 +157,6 @@ class AgglomerativeAlgorithm:
         for c in self.clusters:
             self.clusters[c]["distances"].pop(c1, None)
             self.clusters[c]["distances"].pop(c2, None)
-
 
     def fit(self, data):
         """
@@ -190,7 +183,6 @@ class AgglomerativeAlgorithm:
             linkage_matrix[t][3] = self.clusters[n+t]['cluster_length']
         
         return linkage_matrix
-
 
     def transform(self, data, n_clusters):
         n = len(data)

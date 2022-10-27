@@ -1,23 +1,22 @@
 import numpy as np
-from sklearn.cluster import k_means
 import matplotlib.pyplot as plt
 
 
 class KMeansAlgorithm:
+    """Implementation of K-means clustering algorithm
+
+    Parameters
+    -----------
+    initialization : str, default="single"
+                     The method that would be used to assign the first centroids
+                     Available methods: "single", "++"
+    metric : str, default="euclidean"
+             The metric that would be used to calculate the distances
+             between pair of elements
+             Available metrics: "euclidean", "chebyshev", "manhattan"
+
+    """
     def __init__(self, initialization="single", metric="euclidean"):
-        """Implementation of K-means clustering algorithm
-
-        Parameters
-        -----------
-        initialization : str, default="single"
-                         The method that would be used to assin the first centroids
-                         Available methods: "single", "++"
-        metric : str, default="euclidean"
-                 The metric that would be used to calculate the distances
-                 between pair of elements
-                 Available metrics: "euclidean", "chebyshev", "manhattan"
-
-        """
         # method initializing
         if initialization == "single":
             self.init = self.single_initialization
@@ -59,6 +58,7 @@ class KMeansAlgorithm:
 
     @staticmethod
     def advanced_initialization(data, k):
+        # kmeans++ method for init
         return np.array([])
 
     def fit(self, data, number_of_clusters, max_iter=100000, repeat=False, plot=False):
@@ -66,7 +66,7 @@ class KMeansAlgorithm:
             array_with_variations = []
             for n_iter in range(repeat):
                 current_variation, current_labels, current_centroids = self._main_algorithm(data, number_of_clusters,
-                                                                                      max_iter, plot)
+                                                                                            max_iter, plot)
                 array_with_variations.append((current_variation, current_labels, current_centroids))
             result = min(array_with_variations, key=lambda element: element[0])
         else:
@@ -102,27 +102,28 @@ class KMeansAlgorithm:
             centroids[cluster_index] = np.mean(cluster, axis=0)
 
     def plot_steps(self, data, centroids, labels):
-        fig, ax = plt.subplots(figsize=(15, 9))
+        fig, ax = plt.subplots(figsize=(8, 4))
         ax.scatter(data[:, 0], data[:, 1], c=labels, linewidths=1)
         for centroid in centroids:
             ax.scatter(*centroid, marker='x', color='m', linewidths=2)
         plt.show()
 
-def plot_within_cluster_variation(data, model, repeat=3, range_of_clusters=None):
+def plot_within_cluster_variation(data, model, repeat=3, range_of_clusters=None, figsize=(10, 4)):
     if range_of_clusters is None:
         range_of_clusters = np.arange(1, len(data))
     wcv_array = []
     for k in range_of_clusters:
         wcv, _, _ = model.fit(data, number_of_clusters=k, repeat=repeat)
         wcv_array.append(wcv)
-    plt.figure(figsize=(12, 7))
+    plt.figure(figsize=figsize)
     plt.plot(range_of_clusters, np.array(wcv_array), marker='o', linestyle='-', c='b')
     plt.ylabel('Within cluster variation')
     plt.xlabel('number of clusters')
     plt.show()
 
 
-#dataset = np.array([[0, 0], [2, 4], [3, 3], [1, 2], [3, 0], [3, 1], [1, 1], [12, 18], [13, 17],
-#                 [11, 15], [13, 14], [14, 16], [11, 16], [12, 15], [13, 18], [12, 5], [13, 2],
-#                 [14, 4], [12, 3], [13, 1], [14, 2], [24, 19], [22, 22], [21, 24], [23, 21],
-#                 [24, 20], [22, 39], [23, 38], [24, 39], [21, 37], [2, 26], [24, 6], [10, 36]])
+# dataset = np.array([[0, 0], [2, 4], [3, 3], [1, 2], [3, 0], [3, 1], [1, 1], [12, 18], [13, 17],
+#                     [11, 15], [13, 14], [14, 16], [11, 16], [12, 15], [13, 18], [12, 5], [13, 2],
+#                     [14, 4], [12, 3], [13, 1], [14, 2], [24, 19], [22, 22], [21, 24], [23, 21],
+#                     [24, 20], [22, 39], [23, 38], [24, 39], [21, 37], [2, 26], [24, 6], [10, 36]])
+# variation, labels, centroids = KMeansAlgorithm().fit(data=dataset, number_of_clusters=5, plot=True)
