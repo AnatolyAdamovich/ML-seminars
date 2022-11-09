@@ -4,3 +4,4 @@ venv/
 .gitignore
 .idea
 .fleet
+data/
